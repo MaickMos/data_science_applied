@@ -166,3 +166,4 @@ data/sampled-datasets/regulars.parquet
 data/sampled-datasets/users.parquet
 data/trained-models/model.joblib
 config.json
+model_regresion_lineal_feature_frame/models
