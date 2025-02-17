@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import os
+import Path 
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -25,33 +25,27 @@ def preprocess_data(df):
     return df
 
 
-def predict_probability(user_id,order_id,database):
-    
+def predict_probability(
+        user_id: int,
+        order_id: int,
+        database_path: str,
+        ):
+    folder_path = Path(database_path)
+    feature_frame = load_data(folder_path)
 
-    # Evaluación
-    y_pred = model.predict(X_test)
-    y_prob = model.predict_proba(X_test)[:, 1]
+    data =preprocess_data(feature_frame[
+        feature_frame["user_id"]==user_id and feature_frame["order_id"]==order_id]
+        [["ordered_before","global_popularity","abandoned_before"]]
+        )
 
-    print("Classification Report:\n", classification_report(y_test, y_pred))
-    print("ROC AUC Score:", roc_auc_score(y_test, y_prob))
+    model = joblib.load("modelo_push_notifications.pkl")
 
-    # Guardar modelo
-    model_path = f"models/logistic_model_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
-    os.makedirs("models", exist_ok=True)
-    joblib.dump(model, model_path)
-    print(f"Modelo guardado en {model_path}")
+    y_pred = model.predict(data)
 
-    return model
+    return y_pred
 
 def main():
-    filepath = "data/orders_data.csv" 
-    df = load_data(filepath)
-    
-    if df is not None:
-        df = preprocess_data(df)
-        X = df.drop(columns=["outcome"])
-        y = df["outcome"]
-        trained_model = train_model(X, y)
+    predict_probability
 
 if __name__ == "__main__":
     main()
